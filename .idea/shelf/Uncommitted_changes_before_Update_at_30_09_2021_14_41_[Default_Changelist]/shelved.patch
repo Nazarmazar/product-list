@@ -1,0 +1,205 @@
+Index: src/BlogDetails.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import {Link, useHistory, useParams} from \"react-router-dom\"\r\nimport useFetch from \"./useFetch\";\r\nconst BlogDetails = () => {\r\n    const {id} = useParams()\r\n    const {data: products,error, isPending} = useFetch( 'http://localhost:8000/products/'+id)\r\n    const history = useHistory()\r\n    const handleClick = () => {\r\n        fetch('http://localhost:8000/products/'+ products.id, {\r\n            method: 'DELETE'\r\n        }).then(() =>{\r\n            window.location.href=\"/\";\r\n        })\r\n    }\r\n    return (\r\n\r\n        <div className='blog-details'>\r\n            {isPending && <div>Loading</div>}\r\n            {error && <div>{error}</div>}\r\n            {products&& (\r\n                <article>\r\n\r\n                    <h2>{products.name}</h2>\r\n                    <p><img src={products.imageUrl} style={{width:200, height:200, float: \"left\" }} alt={\"logo\"}/>\r\n                        {products.description}</p>\r\n                    <br></br>\r\n                    <p>Quantity available {products.count}</p>\r\n                    <br></br>\r\n                    <p>Colour of product: {products.colour}</p>\r\n                    <br></br>\r\n                    <p>Weight of product: {products.weight}</p>\r\n\r\n                    <button onClick={handleClick}>Delete product</button>\r\n                </article>\r\n            )}\r\n        </div>\r\n    )\r\n}\r\nexport default BlogDetails
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/BlogDetails.js b/src/BlogDetails.js
+--- a/src/BlogDetails.js	(revision 4740dc259f9883c9652d223f4d4cd63adb83e71e)
++++ b/src/BlogDetails.js	(date 1633001178155)
+@@ -1,5 +1,7 @@
+-import {Link, useHistory, useParams} from "react-router-dom"
++import {useHistory, useParams} from "react-router-dom"
+ import useFetch from "./useFetch";
++import ModalEdit from "./Navbar/Home/Modal/Modal";
++import {useState} from "react";
+ const BlogDetails = () => {
+     const {id} = useParams()
+     const {data: products,error, isPending} = useFetch( 'http://localhost:8000/products/'+id)
+@@ -8,9 +10,10 @@
+         fetch('http://localhost:8000/products/'+ products.id, {
+             method: 'DELETE'
+         }).then(() =>{
+-            window.location.href="/";
++            history.push('/')
+         })
+     }
++    const [modalActive, setModalActive] = useState(false)
+     return (
+ 
+         <div className='blog-details'>
+@@ -30,6 +33,7 @@
+                     <p>Weight of product: {products.weight}</p>
+ 
+                     <button onClick={handleClick}>Delete product</button>
++
+                 </article>
+             )}
+         </div>
+Index: src/BlogList.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import {Link} from \"react-router-dom\";\r\nimport './index.css'\r\nconst BlogList =({ products, title1} )=> {\r\n    const handleClick = () => {\r\n        fetch('http://localhost:8000/products/'+ products.id, {\r\n            method: 'DELETE'\r\n        }).then(() =>{\r\n            window.location.href=\"/\";\r\n        })\r\n    }\r\n    return (\r\n       <div className='blog-list'>\r\n         <h2>{title1}</h2>\r\n        {products.map((products) => (\r\n                <div className = 'blog-preview' key={products.id}>\r\n                    <Link to={`/products/${products.id}`}>\r\n                        <h2>{products.name}</h2>\r\n                        <p><img src={products.imageUrl} style={{width:200, height:200, float: \"left\" }} alt={\"logo\"}/>\r\n                            {products.description}</p>\r\n                        <br></br>\r\n                        <p>Quantity available {products.count}</p>\r\n\r\n                    </Link>\r\n                    <button onClick={handleClick}>Delete product</button>\r\n\r\n\r\n                </div>\r\n            ))}\r\n       </div>\r\n    )\r\n}\r\n\r\nexport default BlogList
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/BlogList.js b/src/BlogList.js
+--- a/src/BlogList.js	(revision 4740dc259f9883c9652d223f4d4cd63adb83e71e)
++++ b/src/BlogList.js	(date 1633001763791)
+@@ -1,16 +1,25 @@
+ import {Link} from "react-router-dom";
++import {useHistory, useParams} from "react-router-dom"
+ import './index.css'
+ const BlogList =({ products, title1} )=> {
++    const history = useHistory()
+     const handleClick = () => {
++        console.log(products.id)
+         fetch('http://localhost:8000/products/'+ products.id, {
+             method: 'DELETE'
+         }).then(() =>{
+-            window.location.href="/";
++            history.push('/')
+         })
+     }
+     return (
+        <div className='blog-list'>
+          <h2>{title1}</h2>
++
++        <select>
++            <option value="">--Please choose an option--</option>
++            <option value="name">Name</option>
++            <option value="quantity">Quantity</option>
++        </select>
+         {products.map((products) => (
+                 <div className = 'blog-preview' key={products.id}>
+                     <Link to={`/products/${products.id}`}>
+@@ -21,7 +30,7 @@
+                         <p>Quantity available {products.count}</p>
+ 
+                     </Link>
+-                    <button onClick={handleClick}>Delete product</button>
++
+ 
+ 
+                 </div>
+Index: src/Navbar/Home/Home.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import BlogList from \"../../BlogList\";\r\nimport useFetch from \"../../useFetch\";\r\n\r\nconst Home = () => {\r\n    const {data: products, isPending, error} = useFetch('http://localhost:8000/products')\r\n\r\n    const handleDelete = (id) => {\r\n        const newProducts = products.filter(products => products.id);\r\n        products(newProducts)\r\n    }\r\n\r\n    return (\r\n        <div className='home'>\r\n            {error && <div>{error}</div>}\r\n            {isPending && <div>Loading...</div>}\r\n            {products && <BlogList products={products} handleDelete={handleDelete} title1 = 'All products' />}\r\n\r\n        </div>\r\n    )\r\n}\r\nexport default Home
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/Navbar/Home/Home.js b/src/Navbar/Home/Home.js
+--- a/src/Navbar/Home/Home.js	(revision 4740dc259f9883c9652d223f4d4cd63adb83e71e)
++++ b/src/Navbar/Home/Home.js	(date 1633002061651)
+@@ -4,16 +4,13 @@
+ const Home = () => {
+     const {data: products, isPending, error} = useFetch('http://localhost:8000/products')
+ 
+-    const handleDelete = (id) => {
+-        const newProducts = products.filter(products => products.id);
+-        products(newProducts)
+-    }
++
+ 
+     return (
+         <div className='home'>
+             {error && <div>{error}</div>}
+             {isPending && <div>Loading...</div>}
+-            {products && <BlogList products={products} handleDelete={handleDelete} title1 = 'All products' />}
++            {products && <BlogList products={products}  title1 = 'All products' />}
+ 
+         </div>
+     )
+Index: .idea/inspectionProfiles/Project_Default.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/inspectionProfiles/Project_Default.xml b/.idea/inspectionProfiles/Project_Default.xml
+new file mode 100644
+--- /dev/null	(date 1626256590072)
++++ b/.idea/inspectionProfiles/Project_Default.xml	(date 1626256590072)
+@@ -0,0 +1,6 @@
++<component name="InspectionProjectProfileManager">
++  <profile version="1.0">
++    <option name="myName" value="Project Default" />
++    <inspection_tool class="Eslint" enabled="true" level="WARNING" enabled_by_default="true" />
++  </profile>
++</component>
+\ No newline at end of file
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100644
+--- /dev/null	(date 1632840820908)
++++ b/.idea/vcs.xml	(date 1632840820908)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/.gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+new file mode 100644
+--- /dev/null	(date 1626256502061)
++++ b/.idea/.gitignore	(date 1626256502061)
+@@ -0,0 +1,5 @@
++# Default ignored files
++/shelf/
++/workspace.xml
++# Editor-based HTTP Client requests
++/httpRequests/
+Index: .idea/bike-blog.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/bike-blog.iml b/.idea/bike-blog.iml
+new file mode 100644
+--- /dev/null	(date 1626256501861)
++++ b/.idea/bike-blog.iml	(date 1626256501861)
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module type="WEB_MODULE" version="4">
++  <component name="NewModuleRootManager">
++    <content url="file://$MODULE_DIR$">
++      <excludeFolder url="file://$MODULE_DIR$/temp" />
++      <excludeFolder url="file://$MODULE_DIR$/.tmp" />
++      <excludeFolder url="file://$MODULE_DIR$/tmp" />
++    </content>
++    <orderEntry type="inheritedJdk" />
++    <orderEntry type="sourceFolder" forTests="false" />
++  </component>
++</module>
+\ No newline at end of file
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+new file mode 100644
+--- /dev/null	(date 1626256501891)
++++ b/.idea/modules.xml	(date 1626256501891)
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/.idea/bike-blog.iml" filepath="$PROJECT_DIR$/.idea/bike-blog.iml" />
++    </modules>
++  </component>
++</project>
+\ No newline at end of file
