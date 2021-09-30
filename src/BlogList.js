@@ -1,13 +1,7 @@
 import {Link} from "react-router-dom";
 import './index.css'
 const BlogList =({ products, title1} )=> {
-    const handleClick = () => {
-        fetch('http://localhost:8000/products/'+ products.id, {
-            method: 'DELETE'
-        }).then(() =>{
-            window.location.href="/";
-        })
-    }
+    
     return (
        <div className='blog-list'>
          <h2>{title1}</h2>
@@ -26,7 +20,7 @@ const BlogList =({ products, title1} )=> {
                         <p>Quantity available {products.count}</p>
 
                     </Link>
-                    <button onClick={handleClick}>Delete product</button>
+                    
 
 
                 </div>
